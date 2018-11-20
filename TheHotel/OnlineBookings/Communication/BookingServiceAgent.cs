@@ -1,4 +1,4 @@
-﻿namespace OnlineBookings.CommunicationServices
+﻿namespace OnlineBookings.Communication
 {
     using System;
 
