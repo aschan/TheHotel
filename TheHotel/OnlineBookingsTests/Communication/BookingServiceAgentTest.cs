@@ -1,6 +1,7 @@
 ﻿namespace OnlineBookings.Communication
 {
     using System;
+    using System.Collections.Generic;
 
     using BookingService;
 
@@ -63,11 +64,47 @@
         }
 
         [Test]
-        public void ValidateHappyFlow()
+        [TestCase("", "Stallone", null, Country.SE, "First")]
+        [TestCase("Arnold", "", null, Country.DK, "Last")]
+        [TestCase(null, "Stallone", "Action", Country.SE, "First")]
+        [TestCase("Arnold", null, "Dejligt", Country.DK, "Last")]
+        [TestCase("Arnold", "Stallone", "", Country.DE, "Title")]
+        [TestCase("Arnold", "Stallone", null, Country.DE, "Title")]
+        public void VerifyThatValidGuestsValidate(string firstName, string lastName, string title, Country country, string startOfMessage)
         {
             var bookingSystemMock = new Mock<IBookingSystem>();
+            bookingSystemMock.Setup(b => b.FetchBooking(It.IsAny<Guid>())).Returns(CreateBooking(firstName, lastName, title, country, "TWIN"));
             var bookingServiceAgent = new BookingServiceAgent(bookingSystemMock.Object);
+
+            var guid = Guid.NewGuid();
+            var guest = new Guest
+                        {
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Title = title,
+                        };
             
+            var exception = Assert.Throws<ArgumentException>(() => bookingServiceAgent.AddGuestToBooking(guid, guest));
+
+            Assert.That(exception.ParamName, Is.EqualTo("guest"));
+            Assert.That(exception.Message.StartsWith(startOfMessage));
+            bookingSystemMock.Verify(b => b.FetchBooking(It.IsAny<Guid>()), Times.Once);
+            bookingSystemMock.Verify(b => b.AddGuestToBooking(It.IsAny<Guid>(), It.IsAny<BookingService.Guest>()), Times.Never);
+
+        }
+
+        [Test]
+        [TestCase("Arnold", "Stallone", null, Country.SE)]
+        [TestCase("Arnold", "Stallone", null, Country.DK)]
+        [TestCase("Arnold", "Stallone", "Action", Country.SE)]
+        [TestCase("Arnold", "Stallone", "Dejligt", Country.DK)]
+        [TestCase("Arnold", "Stallone", "Herr", Country.DE)]
+        public void ValidateHappyFlow(string firstName, string lastName, string title, Country country)
+        {
+            var bookingSystemMock = new Mock<IBookingSystem>();
+            bookingSystemMock.Setup(b => b.FetchBooking(It.IsAny<Guid>())).Returns(CreateBooking(firstName, lastName, title, country, "TWIN"));
+            var bookingServiceAgent = new BookingServiceAgent(bookingSystemMock.Object);
+
             IGuest guest = new Guest
                            {
                                FirstName = "Arnold",
@@ -78,6 +115,27 @@
 
             bookingSystemMock.Verify(b => b.FetchBooking(It.IsAny<Guid>()), Times.Once);
             bookingSystemMock.Verify(b => b.AddGuestToBooking(It.IsAny<Guid>(), It.IsAny<BookingService.Guest>()), Times.Once);
+        }
+
+        private BookingService.Booking CreateBooking(string firstName, string lastName, string title, Country country, string roomType)
+        {
+            var guest = new BookingService.Guest
+                        {
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Title = title,
+                        };
+            var hotel = new BookingService.Hotel
+                        {
+                            CountryCode = country,
+                            Name = "Hotel California",
+                        };
+            return new BookingService.Booking
+                   {
+                       Guests = new List<BookingService.Guest>() {guest},
+                       Hotel = hotel,
+                       RoomType = roomType
+                   };
         }
     }
 }

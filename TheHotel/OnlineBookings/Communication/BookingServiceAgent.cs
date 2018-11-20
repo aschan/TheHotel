@@ -22,12 +22,10 @@
                 throw new ArgumentNullException(nameof(guest));
 
             var booking = RetriveBooking(bookingId); 
+            ValidateGuest(guest, booking.Hotel.CountryCode);
 
-            // TODO: Validate guest using country from booking
             // TODO: Check available beds
             // TODO: Add guest
-
-            throw new NotImplementedException();
         }
 
         private Booking RetriveBooking(Guid bookingId)
@@ -37,6 +35,18 @@
                 throw new BookingNotFoundException(bookingId);
 
             return booking;
+        }
+
+        private void ValidateGuest(IGuest guest, Country country)
+        {
+            if (string.IsNullOrWhiteSpace(guest.FirstName))
+                throw new ArgumentException("First name must be supplied.", nameof(guest));
+
+            if (string.IsNullOrWhiteSpace(guest.LastName))
+                throw new ArgumentException("Last name must be supplied.", nameof(guest));
+
+            if (country == Country.DE && string.IsNullOrEmpty(guest.Title))
+                throw new ArgumentException("Title must be supplied in Germany.", nameof(guest));
         }
     }
 }
