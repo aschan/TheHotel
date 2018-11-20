@@ -15,7 +15,7 @@
     {
         [Test]
         [SetUICulture("en-US")]
-        public void ValidateConstructorInjectionOfIBookingSystemThrowsAnException()
+        public void VerifyThatConstructorInjectionOfIBookingSystemThrowsAnException()
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new BookingServiceAgent(null));
             Assert.That(exception.ParamName, Is.EqualTo("bookingSystem"));
@@ -39,6 +39,27 @@
 
             var exception = Assert.Throws<ArgumentNullException>(() => bookingServiceAgent.AddGuestToBooking(Guid.NewGuid(), null));
             Assert.That(exception.ParamName, Is.EqualTo("guest"));
+        }
+
+        [Test]
+        public void VerifyThatBookingNotFoundExceptionIsThrownWhenNoBookingMatches()
+        {
+            var bookingSystemMock = new Mock<IBookingSystem>();
+            bookingSystemMock.Setup(b => b.FetchBooking(It.IsAny<Guid>())).Returns<Booking>(null);
+            var bookingServiceAgent = new BookingServiceAgent(bookingSystemMock.Object);
+
+            var guid = Guid.NewGuid();
+            IGuest guest = new Guest
+                           {
+                               FirstName = "Arnold",
+                               LastName = "Stallone",
+                               Title = "Action"
+                           };
+
+            var exception = Assert.Throws<BookingNotFoundException>(() => bookingServiceAgent.AddGuestToBooking(guid, guest));
+            Assert.That(exception.BookingId, Is.EqualTo(guid));
+            bookingSystemMock.Verify(b => b.FetchBooking(It.IsAny<Guid>()), Times.Once);
+            bookingSystemMock.Verify(b => b.AddGuestToBooking(It.IsAny<Guid>(), It.IsAny<BookingService.Guest>()), Times.Never);
         }
 
         [Test]
