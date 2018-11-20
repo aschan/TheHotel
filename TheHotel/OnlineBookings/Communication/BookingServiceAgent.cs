@@ -13,8 +13,19 @@
             _bookingSystem = bookingSystem ?? throw new ArgumentNullException(nameof(bookingSystem));
         }
 
-        public void AddGuestToBooking(Guid bookingid, IGuest guest)
+        public void AddGuestToBooking(Guid bookingId, IGuest guest)
         {
+            if (bookingId == Guid.Empty)
+                throw new ArgumentNullException(nameof(bookingId));
+
+            if (guest == null)
+                throw new ArgumentNullException(nameof(guest));
+
+            // TODO: Fetch booking
+            // TODO: Validate guest using country from booking
+            // TODO: Check available beds
+            // TODO: Add guest
+
             throw new NotImplementedException();
         }
     }

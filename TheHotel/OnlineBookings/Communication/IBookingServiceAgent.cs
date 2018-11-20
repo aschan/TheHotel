@@ -4,6 +4,6 @@
 
     interface IBookingServiceAgent
     {
-        void AddGuestToBooking(Guid bookingid, IGuest guest);
+        void AddGuestToBooking(Guid bookingId, IGuest guest);
     }
 }
