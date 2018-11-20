@@ -21,12 +21,22 @@
             if (guest == null)
                 throw new ArgumentNullException(nameof(guest));
 
-            // TODO: Fetch booking
+            var booking = RetriveBooking(bookingId); 
+
             // TODO: Validate guest using country from booking
             // TODO: Check available beds
             // TODO: Add guest
 
             throw new NotImplementedException();
+        }
+
+        private Booking RetriveBooking(Guid bookingId)
+        {
+            var booking = _bookingSystem.FetchBooking(bookingId);
+            if (booking == null)
+                throw new BookingNotFoundException(bookingId);
+
+            return booking;
         }
     }
 }
