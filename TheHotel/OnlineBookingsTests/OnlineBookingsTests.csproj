@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>OnlineBookings</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Description>Unit tests for service layer.</Description>
+    <Authors>TheHotel</Authors>
+    <Product>OnlineBookings API</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Moq" Version="4.10.0" />
+    <PackageReference Include="NUnit" Version="3.11.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineBookings\OnlineBookings.csproj" />
+  </ItemGroup>
+
+</Project>

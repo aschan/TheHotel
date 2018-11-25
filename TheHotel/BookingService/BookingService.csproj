@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Description>Exposed interface from central booking system.</Description>
+    <Company>TheHotel</Company>
+    <Product>Central Booking System</Product>
+    <Authors>TheHotel</Authors>
+  </PropertyGroup>
+
+</Project>
