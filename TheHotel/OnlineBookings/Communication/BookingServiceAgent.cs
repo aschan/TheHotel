@@ -22,13 +22,11 @@
             if (guest == null)
                 throw new ArgumentNullException(nameof(guest));
 
-            var booking = RetriveBooking(bookingId); 
+            var booking = RetriveBooking(bookingId);
             var validatedGuest = ValidateGuest(guest, booking.Hotel.CountryCode);
 
-            if (IsThereAnAvailableBed(booking))
-            {
-                UpdateBooking(bookingId, validatedGuest);
-            }
+            CheckAvailableBeds(booking);
+            UpdateBooking(bookingId, validatedGuest);
         }
 
         private Booking RetriveBooking(Guid bookingId)
@@ -75,11 +73,12 @@
             }
         }
 
-        private bool IsThereAnAvailableBed(Booking booking)
+        private void CheckAvailableBeds(Booking booking)
         {
             var numberOfBeds = GetNumberOfBeds(booking.RoomType);
             var numberOfGuests = booking.Guests.Count();
-            return numberOfBeds - numberOfGuests > 0;
+            if (numberOfBeds - numberOfGuests <= 0)
+                throw new AvailabilityException("No beds available.");
         }
 
         private void UpdateBooking(Guid bookingId, Guest guest)
