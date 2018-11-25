@@ -1,6 +1,7 @@
 ﻿namespace OnlineBookings.Communication
 {
     using System;
+    using System.Linq;
 
     using BookingService;
 
@@ -24,8 +25,10 @@
             var booking = RetriveBooking(bookingId); 
             ValidateGuest(guest, booking.Hotel.CountryCode);
 
-            // TODO: Check available beds
-            // TODO: Add guest
+            if (IsThereAnAvailableBed(booking))
+            {
+                // TODO: Add guest
+            }
         }
 
         private Booking RetriveBooking(Guid bookingId)
@@ -63,6 +66,13 @@
                 default:
                     return 0;
             }
+        }
+
+        private bool IsThereAnAvailableBed(Booking booking)
+        {
+            var numberOfBeds = GetNumberOfBeds(booking.RoomType);
+            var numberOfGuests = booking.Guests.Count();
+            return numberOfBeds - numberOfGuests > 0;
         }
     }
 }
