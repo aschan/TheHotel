@@ -45,7 +45,7 @@
             BookingId = (Guid)info.GetValue(nameof(BookingId), typeof(Guid));
         }
 
-        public Guid BookingId { get; set; }
+        public Guid BookingId { get; }
         
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
