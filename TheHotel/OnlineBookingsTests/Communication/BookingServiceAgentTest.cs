@@ -76,7 +76,6 @@
             bookingSystemMock.Setup(b => b.FetchBooking(It.IsAny<Guid>())).Returns(CreateBooking(firstName, lastName, title, country, "TWIN"));
             var bookingServiceAgent = new BookingServiceAgent(bookingSystemMock.Object);
 
-            var guid = Guid.NewGuid();
             var guest = new Guest
                         {
                             FirstName = firstName,
@@ -84,13 +83,64 @@
                             Title = title,
                         };
             
-            var exception = Assert.Throws<ArgumentException>(() => bookingServiceAgent.AddGuestToBooking(guid, guest));
+            var exception = Assert.Throws<ArgumentException>(() => bookingServiceAgent.AddGuestToBooking(Guid.NewGuid(), guest));
 
             Assert.That(exception.ParamName, Is.EqualTo("guest"));
             Assert.That(exception.Message.StartsWith(startOfMessage));
             bookingSystemMock.Verify(b => b.FetchBooking(It.IsAny<Guid>()), Times.Once);
             bookingSystemMock.Verify(b => b.AddGuestToBooking(It.IsAny<Guid>(), It.IsAny<BookingService.Guest>()), Times.Never);
 
+        }
+
+        [Test]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "SINGLE", 1)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "DOUBLE", 2)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "TWIN", 2)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "TRIPLE", 3)]
+        public void VerifyThatBookingFailsIfNoBedsAreAvailable(string firstName, string lastName, string title, Country country, string roomType, int numberOfGuests)
+        {
+            var bookingSystemMock = new Mock<IBookingSystem>();
+            bookingSystemMock.Setup(b => b.FetchBooking(It.IsAny<Guid>())).Returns(CreateBooking(numberOfGuests, roomType));
+            var bookingServiceAgent = new BookingServiceAgent(bookingSystemMock.Object);
+
+            var guest = new Guest
+                        {
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Title = title,
+                        };
+            
+            var exception = Assert.Throws<AvailabilityException>(() => bookingServiceAgent.AddGuestToBooking(Guid.NewGuid(), guest));
+            Assert.That(exception.Message, Is.EqualTo("No beds available."));
+            bookingSystemMock.Verify(b => b.FetchBooking(It.IsAny<Guid>()), Times.Once);
+            bookingSystemMock.Verify(b => b.AddGuestToBooking(It.IsAny<Guid>(), It.IsAny<BookingService.Guest>()), Times.Never);
+        }
+        
+        [Test]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "SINGLE", 0)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "DOUBLE", 0)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "DOUBLE", 1)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "TWIN", 0)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "TWIN", 1)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "TRIPLE", 0)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "TRIPLE", 1)]
+        [TestCase("Arnold", "Stallone", null, Country.SE, "TRIPLE", 2)]
+        public void VerifyThatBookingSucceedIfBedsAreAvailable(string firstName, string lastName, string title, Country country, string roomType, int numberOfGuests)
+        {
+            var bookingSystemMock = new Mock<IBookingSystem>();
+            bookingSystemMock.Setup(b => b.FetchBooking(It.IsAny<Guid>())).Returns(CreateBooking(numberOfGuests, roomType));
+            var bookingServiceAgent = new BookingServiceAgent(bookingSystemMock.Object);
+
+            var guest = new Guest
+                        {
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Title = title,
+                        };
+            bookingServiceAgent.AddGuestToBooking(Guid.NewGuid(), guest);
+
+            bookingSystemMock.Verify(b => b.FetchBooking(It.IsAny<Guid>()), Times.Once);
+            bookingSystemMock.Verify(b => b.AddGuestToBooking(It.IsAny<Guid>(), It.IsAny<BookingService.Guest>()), Times.Once);
         }
 
         [Test]
@@ -132,7 +182,28 @@
                         };
             return new BookingService.Booking
                    {
-                       Guests = new List<BookingService.Guest>() {guest},
+                       Guests = new List<BookingService.Guest> { guest },
+                       Hotel = hotel,
+                       RoomType = roomType
+                   };
+        }
+
+        private BookingService.Booking CreateBooking(int numberOfGuests, string roomType)
+        {
+            var guests = new List<BookingService.Guest>();
+            for (int count = 0; count < numberOfGuests; count++)
+            {
+                guests.Add(new BookingService.Guest());
+            }
+
+            var hotel = new BookingService.Hotel
+                        {
+                            CountryCode = Country.SE,
+                            Name = "Hotel California",
+                        };
+            return new BookingService.Booking
+                   {
+                       Guests = guests,
                        Hotel = hotel,
                        RoomType = roomType
                    };
