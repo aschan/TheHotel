@@ -27,7 +27,7 @@
 
             if (IsThereAnAvailableBed(booking))
             {
-                // TODO: Add guest
+                UpdateBooking(bookingId, validatedGuest);
             }
         }
 
@@ -80,6 +80,11 @@
             var numberOfBeds = GetNumberOfBeds(booking.RoomType);
             var numberOfGuests = booking.Guests.Count();
             return numberOfBeds - numberOfGuests > 0;
+        }
+
+        private void UpdateBooking(Guid bookingId, Guest guest)
+        {
+            _bookingSystem.AddGuestToBooking(bookingId, guest);
         }
     }
 }
