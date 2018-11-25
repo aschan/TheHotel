@@ -23,7 +23,7 @@
                 throw new ArgumentNullException(nameof(guest));
 
             var booking = RetriveBooking(bookingId); 
-            ValidateGuest(guest, booking.Hotel.CountryCode);
+            var validatedGuest = ValidateGuest(guest, booking.Hotel.CountryCode);
 
             if (IsThereAnAvailableBed(booking))
             {
@@ -40,7 +40,7 @@
             return booking;
         }
 
-        private void ValidateGuest(IGuest guest, Country country)
+        private Guest ValidateGuest(IGuest guest, Country country)
         {
             if (string.IsNullOrWhiteSpace(guest.FirstName))
                 throw new ArgumentException("First name must be supplied.", nameof(guest));
@@ -50,6 +50,13 @@
 
             if (country == Country.DE && string.IsNullOrEmpty(guest.Title))
                 throw new ArgumentException("Title must be supplied in Germany.", nameof(guest));
+
+            return new Guest
+                   {
+                       FirstName = guest.FirstName,
+                       LastName = guest.LastName,
+                       Title = guest.Title,
+                   };
         }
 
         private int GetNumberOfBeds(string roomType)
