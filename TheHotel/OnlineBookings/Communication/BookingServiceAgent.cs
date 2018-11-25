@@ -48,5 +48,21 @@
             if (country == Country.DE && string.IsNullOrEmpty(guest.Title))
                 throw new ArgumentException("Title must be supplied in Germany.", nameof(guest));
         }
+
+        private int GetNumberOfBeds(string roomType)
+        {
+            switch (roomType.ToUpperInvariant())
+            {
+                case "SINGLE":
+                    return 1;
+                case "DOUBLE":
+                case "TWIN":
+                    return 2;
+                case "TRIPLE":
+                    return 3;
+                default:
+                    return 0;
+            }
+        }
     }
 }
