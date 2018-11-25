@@ -4,6 +4,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>OnlineBookings</RootNamespace>
     <Platforms>AnyCPU;x64</Platforms>
+    <Description>Unit tests for service layer.</Description>
+    <Authors>TheHotel</Authors>
+    <Product>OnlineBookings API</Product>
   </PropertyGroup>
 
   <ItemGroup>
